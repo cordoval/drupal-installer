@@ -7,8 +7,18 @@ use Drupal\Core\Language\Language;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
+use Drupal\Core\Installer\InstallerKernel;
+use Drupal\Core\Installer\Controller\SelectLanguage;
+
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\Routing\RouteCollection;
+use Symfony\Component\Routing\Route;
+use Symfony\Component\Routing\Generator\UrlGenerator;
+use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Routing\Matcher\UrlMatcher;
 
 /**
  * @file
@@ -46,6 +56,78 @@ const INSTALL_TASK_RUN_IF_REACHED = 2;
  * basic site information and sets up the site maintenance account.
  */
 const INSTALL_TASK_RUN_IF_NOT_COMPLETED = 3;
+
+function install_drupal_2() {
+
+  // So that the class loader works.
+  require_once DRUPAL_ROOT . '/core/includes/bootstrap.inc';
+  drupal_bootstrap(DRUPAL_BOOTSTRAP_CONFIGURATION);
+
+  install_drupal_2_init();
+
+
+  $request = Request::createFromGlobals();
+
+  $session = new Session(new NativeSessionStorage());
+  $request->setSession($session);
+
+  $routes = new RouteCollection();
+
+  $context = new RequestContext();
+  $matcher = new UrlMatcher($routes, $context);
+  $generator = new UrlGenerator($routes, $context);
+
+  $language_controller = SelectLanguage($generator);
+
+  $routes->add('language', new Route('/language', array(
+    '_controller' => array($language_controller, 'interactive'),
+  )));
+  $routes->add('home', new Route('/', array(
+    '_controller' => function() use ($generator) {
+      return new RedirectResponse($generator->generate('language'));
+    },
+  )));
+
+
+  $kernel = new InstallerKernel($matcher);
+  $kernel->handle($request)->send();
+}
+
+/**
+ * Include all the necessary libraries to make the installer work.
+ *
+ * @todo This entire function should get replaced as the following systems
+ * become injectable OO.  This function should cease to exist before Drupal 8
+ * ships.
+ */
+function install_drupal_2_init() {
+  require_once DRUPAL_ROOT . '/core/includes/install.inc';
+  require_once DRUPAL_ROOT . '/core/includes/form.inc';
+  require_once DRUPAL_ROOT . '/core/includes/common.inc';
+  require_once DRUPAL_ROOT . '/core/includes/unicode.inc';
+  require_once DRUPAL_ROOT . '/core/includes/ajax.inc';
+  include_once DRUPAL_ROOT . '/core/includes/module.inc';
+  $module_list['system']['filename'] = 'core/modules/system/system.module';
+  $module_list['entity']['filename'] = 'core/modules/entity/entity.module';
+  $module_list['user']['filename']   = 'core/modules/user/user.module';
+  module_list(TRUE, FALSE, FALSE, $module_list);
+  drupal_load('module', 'system');
+  drupal_load('module', 'entity');
+  drupal_load('module', 'user');
+
+  // Load the cache infrastructure using a "fake" cache implementation that
+  // does not attempt to write to the database. We need this during the initial
+  // part of the installer because the database is not available yet. We
+  // continue to use it even when the database does become available, in order
+  // to preserve consistency between interactive and command-line installations
+  // (the latter complete in one page request and therefore are forced to
+  // continue using the cache implementation they started with) and also
+  // because any data put in the cache during the installer is inherently
+  // suspect, due to the fact that Drupal is not fully set up yet.
+  require_once DRUPAL_ROOT . '/core/includes/cache.inc';
+  $conf['cache_default_class'] = 'Drupal\Core\Cache\InstallBackend';
+}
+
 
 /**
  * Installs Drupal either interactively or via an array of passed-in settings.

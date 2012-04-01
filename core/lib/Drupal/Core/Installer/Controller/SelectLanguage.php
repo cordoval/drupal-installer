@@ -17,7 +17,11 @@ class SelectLanguage {
     $this->generator = $generator;
   }
 
-  public function execute(Request $request) {
+  public function nonInteractive(Request $request) {
+    
+  }
+
+  public function interactive(Request $request) {
     // Find all available translations.
     require_once DRUPAL_ROOT . '/core/includes/file.inc';
     $files = install_find_translations();
