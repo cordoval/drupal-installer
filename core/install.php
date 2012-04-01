@@ -33,4 +33,5 @@ if (version_compare(PHP_VERSION, '5.3.3') < 0) {
 
 // Start the installer.
 require_once DRUPAL_ROOT . '/core/includes/install.core.inc';
-install_drupal();
+//install_drupal();
+install_drupal_2();
