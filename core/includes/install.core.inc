@@ -77,7 +77,7 @@ function install_drupal_2() {
   $matcher = new UrlMatcher($routes, $context);
   $generator = new UrlGenerator($routes, $context);
 
-  $language_controller = SelectLanguage($generator);
+  $language_controller = new SelectLanguage($generator);
 
   $routes->add('language', new Route('/language', array(
     '_controller' => array($language_controller, 'interactive'),
@@ -101,6 +101,8 @@ function install_drupal_2() {
  * ships.
  */
 function install_drupal_2_init() {
+  global $conf;
+
   require_once DRUPAL_ROOT . '/core/includes/install.inc';
   require_once DRUPAL_ROOT . '/core/includes/form.inc';
   require_once DRUPAL_ROOT . '/core/includes/common.inc';
@@ -126,6 +128,27 @@ function install_drupal_2_init() {
   // suspect, due to the fact that Drupal is not fully set up yet.
   require_once DRUPAL_ROOT . '/core/includes/cache.inc';
   $conf['cache_default_class'] = 'Drupal\Core\Cache\InstallBackend';
+
+  // Prepare for themed output. We need to run this at the beginning of the
+  // page request to avoid a different theme accidentally getting set. (We also
+  // need to run it even in the case of command-line installations, to prevent
+  // any code in the installer that happens to initialize the theme system from
+  // accessing the database before it is set up yet.)
+  drupal_maintenance_theme();
+
+  // Check existing settings.php.
+  $install_state['settings_verified'] = install_verify_settings();
+
+  if ($install_state['settings_verified']) {
+    // Initialize the database system. Note that the connection
+    // won't be initialized until it is actually requested.
+    require_once DRUPAL_ROOT . '/core/includes/database.inc';
+
+    // Verify the last completed task in the database, if there is one.
+    $task = install_verify_completed_task();
+
+  }
+
 }
 
 
