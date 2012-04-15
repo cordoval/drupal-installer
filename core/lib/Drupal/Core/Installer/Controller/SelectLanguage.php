@@ -4,6 +4,7 @@ namespace Drupal\Core\Installer\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGenerator;
+use Symfony\Component\HttpFoundation\Response;
 
 
 /**
@@ -62,7 +63,7 @@ class SelectLanguage {
             $elements = drupal_get_form('install_select_language_form', $files);
             $output = drupal_render($elements);
           }
-          return $output;
+          return new Response($output);
         }
         // One language, but not an interactive installation. Assume the user
         // knows what he is doing.
@@ -80,7 +81,7 @@ class SelectLanguage {
           drupal_set_title(st('Choose language'));
           include_once DRUPAL_ROOT . '/core/includes/form.inc';
           $elements = drupal_get_form('install_select_language_form', $files);
-          return drupal_render($elements);
+          return new Response(drupal_render($elements));
         }
         else {
           throw new Exception(st('Sorry, you must select a language to continue the installation.'));
