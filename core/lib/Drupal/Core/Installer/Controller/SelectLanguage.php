@@ -19,7 +19,7 @@ class SelectLanguage {
   }
 
   public function nonInteractive(Request $request) {
-    
+
   }
 
   public function interactive(Request $request) {

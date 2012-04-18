@@ -9,6 +9,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 use Drupal\Core\Installer\InstallerKernel;
 use Drupal\Core\Installer\Controller\SelectLanguage;
+use Drupal\Core\Installer\Controller\SelectProfile;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -78,9 +79,13 @@ function install_drupal_2() {
   $generator = new UrlGenerator($routes, $context);
 
   $language_controller = new SelectLanguage($generator);
+  $profile_controller = new SelectProfile($generator);
 
   $routes->add('language', new Route('/language', array(
     '_controller' => array($language_controller, 'interactive'),
+  )));
+  $routes->add('profile', new Route('/profile', array(
+    '_controller' => array($profile_controller, 'interactive'),
   )));
   $routes->add('home', new Route('/', array(
     '_controller' => function() use ($generator) {
