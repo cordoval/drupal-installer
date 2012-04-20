@@ -33,6 +33,7 @@ class SelectLanguage {
     $install_state['interactive'] = TRUE;
 
     $session = $request->getSession();
+    $session->start();
 
     $langcode = $request->get('langcode');
     if (empty($langcode)) {

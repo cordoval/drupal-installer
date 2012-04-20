@@ -13,6 +13,7 @@ class SelectProfile {
   public function interactive(Request $request) {
     if (empty($install_state['parameters']['profile'])) {
       $session = $request->getSession();
+      $session->start();
       $langcode = $session->get('langcode');
 
       // Temporary hack.
