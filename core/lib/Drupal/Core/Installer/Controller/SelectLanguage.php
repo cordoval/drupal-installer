@@ -5,6 +5,7 @@ namespace Drupal\Core\Installer\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 
 /**
@@ -33,8 +34,7 @@ class SelectLanguage {
 
     $session = $request->getSession();
 
-    $langcode = $session->get('langcode');
-
+    $langcode = $request->get('langcode');
     if (empty($langcode)) {
       // If only the built-in (English) language is available, and we are
       // performing an interactive installation, inform the user that the
@@ -88,6 +88,14 @@ class SelectLanguage {
         }
       }
     }
+    else {
+      foreach ($files as $file) {
+        if ($langcode == $file->langcode) {
+          $session->set('langcode', $file->langcode);
+          $install_state['parameters']['langcode'] = $file->langcode;
+          return new RedirectResponse('profile');
+        }
+      }
+    }
   }
 }
-

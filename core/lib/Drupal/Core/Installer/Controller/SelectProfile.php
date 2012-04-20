@@ -10,8 +10,10 @@ use Symfony\Component\Routing\Generator\UrlGenerator;
  * This is installer step 2.
  */
 class SelectProfile {
-  public function interactive() {
+  public function interactive(Request $request) {
     if (empty($install_state['parameters']['profile'])) {
+      $session = $request->getSession();
+      $langcode = $session->get('langcode');
 
       // Temporary hack.
       $install_state = array();
@@ -33,7 +35,7 @@ class SelectProfile {
           include_once DRUPAL_ROOT . '/core/includes/form.inc';
           drupal_set_title(st('Select an installation profile'));
           $form = drupal_get_form('install_select_profile_form', $install_state['profiles']);
-          return new Response(drupal_render($form));
+          return new Response(drupal_render($form). ' Langcode is ' . $langcode);
         }
         else {
           throw new Exception(install_no_profile_error());
