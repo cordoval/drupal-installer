@@ -4,6 +4,7 @@ namespace Drupal\Core\Installer\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 
 /**
@@ -14,7 +15,6 @@ class SelectProfile {
     if (empty($install_state['parameters']['profile'])) {
       $session = $request->getSession();
       $session->start();
-      $langcode = $session->get('langcode');
 
       // Temporary hack.
       $install_state = array();
@@ -22,6 +22,10 @@ class SelectProfile {
 
       // Try to find a profile.
       $profile = _install_select_profile($install_state['profiles']);
+      if (empty($profile)) {
+        $profile = $request->get('profile');
+      }
+
       if (empty($profile)) {
         // We still don't have a profile, so display a form for selecting one.
         // Only do this in the case of interactive installations, since this is
@@ -36,14 +40,15 @@ class SelectProfile {
           include_once DRUPAL_ROOT . '/core/includes/form.inc';
           drupal_set_title(st('Select an installation profile'));
           $form = drupal_get_form('install_select_profile_form', $install_state['profiles']);
-          return new Response(drupal_render($form). ' Langcode is ' . $langcode);
+          return new Response(drupal_render($form));
         }
         else {
           throw new Exception(install_no_profile_error());
         }
       }
       else {
-        $install_state['parameters']['profile'] = $profile;
+        $session->set('profile', $profile);
+        return new RedirectResponse('load_profile');
       }
     }
   }
