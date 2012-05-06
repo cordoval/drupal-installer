@@ -10,6 +10,8 @@ use Symfony\Component\DependencyInjection\Reference;
 use Drupal\Core\Installer\InstallerKernel;
 use Drupal\Core\Installer\Controller\SelectLanguage;
 use Drupal\Core\Installer\Controller\SelectProfile;
+use Drupal\Core\Installer\Controller\LoadProfile;
+use Drupal\Core\Installer\Controller\VerifyRequirements;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -80,6 +82,8 @@ function install_drupal_2() {
 
   $language_controller = new SelectLanguage($generator);
   $profile_controller = new SelectProfile($generator);
+  $load_profile_controller = new LoadProfile($generator);
+  $requirements_controller = new VerifyRequirements($generator);
 
   $routes->add('language', new Route('/language', array(
     '_controller' => array($language_controller, 'interactive'),
@@ -91,6 +95,13 @@ function install_drupal_2() {
     '_controller' => function() use ($generator) {
       return new RedirectResponse($generator->generate('language'));
     },
+  )));
+
+  $routes->add('load_profile', new Route('/load_profile', array(
+    '_controller' => array($load_profile_controller, 'interactive'),
+  )));
+  $routes->add('requirements', new Route('/requirements', array(
+    '_controller' => array($requirements_controller, 'interactive'),
   )));
 
 
