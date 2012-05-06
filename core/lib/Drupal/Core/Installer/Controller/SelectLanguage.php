@@ -24,16 +24,14 @@ class SelectLanguage {
   }
 
   public function interactive(Request $request) {
+    $session = $request->getSession();
+    $session->start();
+    $install_state = $session->get('install_state');
+
     // Find all available translations.
     require_once DRUPAL_ROOT . '/core/includes/file.inc';
     $files = install_find_translations();
     $install_state['translations'] = $files;
-
-    // Temporary hack.
-    $install_state['interactive'] = TRUE;
-
-    $session = $request->getSession();
-    $session->start();
 
     $langcode = $request->get('langcode');
     if (empty($langcode)) {
@@ -92,8 +90,8 @@ class SelectLanguage {
     else {
       foreach ($files as $file) {
         if ($langcode == $file->langcode) {
-          $session->set('langcode', $file->langcode);
           $install_state['parameters']['langcode'] = $file->langcode;
+          $session->set('install_state', $install_state);
           return new RedirectResponse('profile');
         }
       }

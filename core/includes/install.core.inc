@@ -68,11 +68,16 @@ function install_drupal_2() {
 
   install_drupal_2_init();
 
-
   $request = Request::createFromGlobals();
 
   $session = new Session(new NativeSessionStorage());
+  $session->start();
   $request->setSession($session);
+
+  // We currently don't have a way of doing non-interactive
+  $settings = array();
+  $interactive = empty($settings);
+  $session->set('install_state', $session->get('install_state') + $settings + array('interactive' => $interactive) + install_state_defaults());
 
   $routes = new RouteCollection();
 
