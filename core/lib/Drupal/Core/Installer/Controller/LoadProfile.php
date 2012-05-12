@@ -14,14 +14,16 @@ class LoadProfile {
   public function interactive(Request $request) {
     $session = $request->getSession();
     $session->start();
-    $profile = $session->get('profile');
-    $langcode = $session->get('langcode');
+    $install_state = $session->get('install_state');
+    $profile = $install_state['parameters']['profile'];
+    $langcode = $install_state['parameters']['langcode'];
 
     $profile_file = DRUPAL_ROOT . '/profiles/' . $profile . '/' . $profile . '.profile';
     if (file_exists($profile_file)) {
       include_once $profile_file;
-      $session->set('profile_info', install_profile_info($profile, $langcode));
-      $install_state['profile_info'] = install_profile_info($install_state['parameters']['profile'], $install_state['parameters']['langcode']);
+      $install_state['profile_info'] = install_profile_info($profile, $langcode);
+
+      $session->set('install_state', $install_state);
       return new RedirectResponse('requirements');
     }
     else {
