@@ -77,7 +77,13 @@ function install_drupal_2() {
   // We currently don't have a way of doing non-interactive
   $settings = array();
   $interactive = empty($settings);
-  $session->set('install_state', $session->get('install_state') + $settings + array('interactive' => $interactive) + install_state_defaults());
+
+  $install_state = $session->get('install_state', array())
+    + $settings
+    + array('interactive' => $interactive)
+    + install_state_defaults();
+
+  $session->set('install_state', $install_state);
 
   $routes = new RouteCollection();
 
