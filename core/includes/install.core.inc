@@ -91,8 +91,8 @@ function install_drupal_2() {
   $matcher = new UrlMatcher($routes, $context);
   $generator = new UrlGenerator($routes, $context);
 
-  $language_controller = new SelectLanguage($generator);
-  $profile_controller = new SelectProfile($generator);
+  $language_controller = new SelectLanguage($generator, $request);
+  $profile_controller = new SelectProfile($generator, $request);
   $load_profile_controller = new LoadProfile($generator);
   $requirements_controller = new VerifyRequirements($generator);
 

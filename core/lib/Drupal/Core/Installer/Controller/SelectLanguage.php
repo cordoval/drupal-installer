@@ -7,33 +7,24 @@ use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
-
 /**
  * This is installer step 1.
  */
-class SelectLanguage {
+class SelectLanguage extends InstallController {
 
-  protected $generator;
-
-  public function __construct(UrlGenerator $generator) {
-    $this->generator = $generator;
-  }
-
-  public function nonInteractive(Request $request) {
+  public function nonInteractive() {
 
   }
 
-  public function interactive(Request $request) {
-    $session = $request->getSession();
-    $session->start();
-    $install_state = $session->get('install_state');
+  public function interactive() {
+    $install_state = $this->install_state;
 
     // Find all available translations.
     require_once DRUPAL_ROOT . '/core/includes/file.inc';
     $files = install_find_translations();
     $install_state['translations'] = $files;
 
-    $langcode = $request->get('langcode');
+    $langcode = $this->request->get('langcode');
     if (empty($langcode)) {
       // If only the built-in (English) language is available, and we are
       // performing an interactive installation, inform the user that the
@@ -91,7 +82,7 @@ class SelectLanguage {
       foreach ($files as $file) {
         if ($langcode == $file->langcode) {
           $install_state['parameters']['langcode'] = $file->langcode;
-          $session->set('install_state', $install_state);
+          $this->saveInstallState($install_state);
           return new RedirectResponse('profile');
         }
       }

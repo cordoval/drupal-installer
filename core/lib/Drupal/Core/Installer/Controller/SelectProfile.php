@@ -10,13 +10,11 @@ use Symfony\Component\Routing\Generator\UrlGenerator;
 /**
  * This is installer step 2.
  */
-class SelectProfile {
+class SelectProfile extends InstallController {
   public function interactive(Request $request) {
     if (empty($install_state['parameters']['profile'])) {
-      $session = $request->getSession();
-      $session->start();
 
-      $install_state = $session->get('install_state');
+      $install_state = $this->install_state;
       $install_state['profiles'] = $this->install_find_profiles();
 
       // Try to find a profile.
@@ -41,7 +39,7 @@ class SelectProfile {
       }
       else {
         $install_state['parameters']['profile'] = $profile;
-        $session->set('install_state', $install_state);
+        $this->request->getSession()->set('install_state', $install_state);
         return new RedirectResponse('load_profile');
       }
     }
