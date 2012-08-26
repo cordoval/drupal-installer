@@ -139,7 +139,7 @@ function install_drupal_2_init() {
   $module_list['system']['filename'] = 'core/modules/system/system.module';
   $module_list['entity']['filename'] = 'core/modules/entity/entity.module';
   $module_list['user']['filename']   = 'core/modules/user/user.module';
-  module_list(TRUE, FALSE, FALSE, $module_list);
+  module_list('module_enabled', $module_list);
   drupal_load('module', 'system');
   drupal_load('module', 'entity');
   drupal_load('module', 'user');
