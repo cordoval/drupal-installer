@@ -154,7 +154,7 @@ function install_drupal_2_init() {
   // because any data put in the cache during the installer is inherently
   // suspect, due to the fact that Drupal is not fully set up yet.
   require_once DRUPAL_ROOT . '/core/includes/cache.inc';
-  $conf['cache_default_class'] = 'Drupal\Core\Cache\InstallBackend';
+  $conf['cache_classes']['cache'] = 'Drupal\Core\Cache\InstallBackend';
 
   // Prepare for themed output. We need to run this at the beginning of the
   // page request to avoid a different theme accidentally getting set. (We also
