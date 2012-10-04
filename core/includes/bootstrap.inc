@@ -2478,11 +2478,6 @@ function drupal_container(Container $new_container = NULL, $rebuild = FALSE) {
     // requests.
     $container = new ContainerBuilder();
 
-    // @todo-cordoval BEFORE FETCHING THE CONFIG DIRECTORY WE HAVE TO SET
-    // @todo-cordoval CONFIG DIRECTORY VARIABLE BY CALLING VERIFY SOMETHING
-    // @todo-cordoval IT SEEMS SO FAR WE HAVE NOT DONE IT ON THE INSTALLER AT THIS POINT
-    var_dump(config_get_config_directory(CONFIG_ACTIVE_DIRECTORY));
-
     // Register active configuration storage.
     $container
       ->register('config.cachedstorage.storage', 'Drupal\Core\Config\FileStorage')

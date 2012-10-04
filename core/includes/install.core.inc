@@ -63,10 +63,9 @@ const INSTALL_TASK_RUN_IF_NOT_COMPLETED = 3;
 function install_drupal_2() {
 
   // So that the class loader works.
-  require_once DRUPAL_ROOT . '/core/includes/bootstrap.inc';
-  drupal_bootstrap(DRUPAL_BOOTSTRAP_CONFIGURATION);
+  //require_once DRUPAL_ROOT . '/core/includes/bootstrap.inc';
 
-  install_drupal_2_init();
+  //install_drupal_2_init();
 
   $request = Request::createFromGlobals();
 
