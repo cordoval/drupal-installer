@@ -2471,11 +2471,17 @@ function drupal_container(Container $new_container = NULL, $rebuild = FALSE) {
     $container = $new_container;
   }
   if (!isset($container)) {
+
     // Return a ContainerBuilder instance with the bare essentials needed for any
     // full bootstrap regardless of whether there will be a DrupalKernel involved.
     // This will get merged with the full Kernel-built Container on normal page
     // requests.
     $container = new ContainerBuilder();
+
+    // @todo-cordoval BEFORE FETCHING THE CONFIG DIRECTORY WE HAVE TO SET
+    // @todo-cordoval CONFIG DIRECTORY VARIABLE BY CALLING VERIFY SOMETHING
+    // @todo-cordoval IT SEEMS SO FAR WE HAVE NOT DONE IT ON THE INSTALLER AT THIS POINT
+    var_dump(config_get_config_directory(CONFIG_ACTIVE_DIRECTORY));
 
     // Register active configuration storage.
     $container
@@ -2497,7 +2503,7 @@ function drupal_container(Container $new_container = NULL, $rebuild = FALSE) {
     $container->register('config.subscriber.globalconf', 'Drupal\Core\EventSubscriber\ConfigGlobalOverrideSubscriber');
     $container->register('dispatcher', 'Symfony\Component\EventDispatcher\EventDispatcher')
       ->addMethodCall('addSubscriber', array(new Reference('config.subscriber.globalconf')));
-    $container->register('config.factory', 'Drupal\Core\Config\ConfigFactory')
+    $container->register('config.factory', "Drupal\\Core\\Config\\ConfigFactory")
       ->addArgument(new Reference('config.storage'))
       ->addArgument(new Reference('dispatcher'));
 
