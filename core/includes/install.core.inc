@@ -164,7 +164,7 @@ function install_drupal_2_init() {
   drupal_maintenance_theme();
 
   // Check existing settings.php.
-  $install_state['settings_verified'] = install_verify_settings();
+  $install_state['settings_verified'] = install_verify_database_settings();
 
   if ($install_state['settings_verified']) {
     // Initialize the database system. Note that the connection
