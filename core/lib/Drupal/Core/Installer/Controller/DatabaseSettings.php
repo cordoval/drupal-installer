@@ -20,7 +20,6 @@ class DatabaseSettings extends InstallController {
    */
   public function interactive() {
     $form = drupal_get_form(array($this, 'form'));
-    print_r($this->install_state);
     return new Response(drupal_render($form));
   }
 
