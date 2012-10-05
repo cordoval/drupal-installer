@@ -21,7 +21,7 @@ class SelectLanguage extends InstallController {
           $this->install_state['parameters']['langcode'] = $file->langcode;
           $this->saveInstallState($this->install_state);
 
-          return new RedirectResponse('profile');
+          return new RedirectResponse('requirements');
         }
       }
     }

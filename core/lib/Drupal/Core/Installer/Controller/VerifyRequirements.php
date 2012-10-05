@@ -47,7 +47,7 @@ class VerifyRequirements extends InstallController {
         }
       }
     }
-    return new RedirectResponse('database');
+    return new RedirectResponse('profile');
   }
 
   public function install_check_requirements() {
