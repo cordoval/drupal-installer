@@ -107,10 +107,6 @@ function install_drupal_2() {
     '_controller' => array(new SelectProfile($generator, $request), 'interactive'),
   )));
 
-  $routes->add('load_profile', new Route('/load_profile', array(
-    '_controller' => array(new LoadProfile($generator, $request), 'interactive'),
-  )));
-
   $routes->add('requirements', new Route('/requirements', array(
     '_controller' => array(new VerifyRequirements($generator, $request), 'interactive'),
   )));
