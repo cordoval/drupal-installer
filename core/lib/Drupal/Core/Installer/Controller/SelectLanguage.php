@@ -13,9 +13,8 @@ class SelectLanguage extends InstallController {
   public function interactive() {
     // Find all available translations.
     $files = install_find_translations();
-    $langcode = count($files) == 1 ? reset($files)->langcode : $this->request->get('langcode');
 
-    if ($langcode) {
+    if ($langcode = $this->request->get('langcode')) {
       foreach ($files as $file) {
         if ($langcode == $file->langcode) {
           $this->install_state['parameters']['langcode'] = $file->langcode;

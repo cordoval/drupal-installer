@@ -18,7 +18,8 @@ class SelectProfile extends InstallController {
     if ($profile) {
       foreach ($files as $file) {
         if ($profile == $file->name) {
-          $this->install_state['profile_info'] = install_profile_info($profile, $this->install_state['parameters']['langcode']);
+          $langcode = $this->install_state['parameters']['langcode'];
+          $this->install_state['profile_info'] = install_profile_info($profile, $langcode);
           $this->install_state['parameters']['profile'] = $file->name;
           $this->saveInstallState($this->install_state);
           return new RedirectResponse('database');
