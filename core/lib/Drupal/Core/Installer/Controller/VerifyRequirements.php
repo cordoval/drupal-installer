@@ -50,7 +50,7 @@ class VerifyRequirements extends InstallController {
     return new RedirectResponse('database');
   }
 
-  function install_check_requirements() {
+  public function install_check_requirements() {
     $profile = $this->install_state['parameters']['profile'];
 
     // Check the profile requirements.
@@ -171,15 +171,13 @@ class VerifyRequirements extends InstallController {
     return $requirements;
   }
 
-  /**
-   * Check an install profile's requirements.
-   *
-   * @param $profile
-   *   Name of install profile to check.
-   * @return
-   *   Array of the install profile's requirements.
-   */
-  function drupal_verify_profile() {
+    /**
+     * Check an install profile's requirements.
+     *
+     * @return array        Array of the install profile's requirements.
+     * @throws \Exception
+     */
+    public function drupal_verify_profile() {
     $profile = $this->install_state['parameters']['profile'];
 
     include_once DRUPAL_ROOT . '/core/includes/file.inc';
@@ -222,7 +220,7 @@ class VerifyRequirements extends InstallController {
     return $requirements;
   }
 
-  function drupal_check_profile($profile) {
+  public function drupal_check_profile($profile) {
     include_once DRUPAL_ROOT . '/core/includes/file.inc';
 
     $profile_file = DRUPAL_ROOT . "/core/profiles/$profile/$profile.profile";

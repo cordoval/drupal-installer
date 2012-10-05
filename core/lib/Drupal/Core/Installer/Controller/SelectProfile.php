@@ -22,6 +22,7 @@ class SelectProfile extends InstallController {
           $this->install_state['profile_info'] = install_profile_info($profile, $langcode);
           $this->install_state['parameters']['profile'] = $file->name;
           $this->saveInstallState($this->install_state);
+
           return new RedirectResponse('database');
         }
       }
@@ -29,15 +30,12 @@ class SelectProfile extends InstallController {
 
     drupal_set_title(st('Select an installation profile'));
     $elements = drupal_get_form(array($this, 'form'), $files);
-    $output = drupal_render($elements);
-    return new Response($output);
+
+    return new Response(drupal_render($elements));
   }
 
   /**
    * Form constructor for the profile selection form.
-   *
-   * @param array $install_state
-   *   An array of information about the current installation state.
    */
   public function form($form, &$form_state, $files) {
     $profiles = array();

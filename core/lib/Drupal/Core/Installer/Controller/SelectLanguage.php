@@ -20,6 +20,7 @@ class SelectLanguage extends InstallController {
         if ($langcode == $file->langcode) {
           $this->install_state['parameters']['langcode'] = $file->langcode;
           $this->saveInstallState($this->install_state);
+
           return new RedirectResponse('profile');
         }
       }
@@ -27,8 +28,8 @@ class SelectLanguage extends InstallController {
 
     drupal_set_title(st('Select a language'));
     $elements = drupal_get_form(array($this, 'form'), $files);
-    $output = drupal_render($elements);
-    return new Response($output);
+
+    return new Response(drupal_render($elements));
   }
 
   /**
@@ -76,6 +77,7 @@ class SelectLanguage extends InstallController {
       '#type' => 'submit',
       '#value' => st('Save and continue'),
     );
+
     return $form;
   }
 }
