@@ -12,13 +12,11 @@ use Symfony\Component\Routing\Generator\UrlGenerator;
  */
 class SelectProfile extends InstallController {
   public function interactive(Request $request) {
-    if (empty($install_state['parameters']['profile'])) {
-
-      $install_state = $this->install_state;
-      $install_state['profiles'] = $this->install_find_profiles();
+    if (empty($this->install_state['parameters']['profile'])) {
+      $this->install_state['profiles'] = $this->install_find_profiles();
 
       // Try to find a profile.
-      $profile = $this->_install_select_profile($install_state['profiles'], $request);
+      $profile = $this->install_select_profile($this->install_state['profiles']);
 
       if (empty($profile)) {
         // We still don't have a profile, so display a form for selecting one.
@@ -27,35 +25,35 @@ class SelectProfile extends InstallController {
         // yet), rather just a convenience method for setting parameters in the
         // URL.
 
-        if ($install_state['interactive']) {
+        if ($this->install_state['interactive']) {
           include_once DRUPAL_ROOT . '/core/includes/form.inc';
           drupal_set_title(st('Select an installation profile'));
-          $form = drupal_get_form('install_select_profile_form', $install_state['profiles']);
+          $form = drupal_get_form('install_select_profile_form', $this->install_state);
           return new Response(drupal_render($form));
         }
         else {
-          throw new Exception(install_no_profile_error());
+          throw new \Exception(install_no_profile_error());
         }
       }
       else {
-        $install_state['parameters']['profile'] = $profile;
-        $this->request->getSession()->set('install_state', $install_state);
+        $this->install_state['parameters']['profile'] = $profile;
+        $this->saveInstallState($this->install_state);
         return new RedirectResponse('load_profile');
       }
     }
   }
 
   function install_find_profiles() {
-    return file_scan_directory('./profiles', '/\.profile$/', array('key' => 'name'));
+    return file_scan_directory('core/profiles', '/\.profile$/', array('key' => 'name'));
   }
 
-  /**
+  /**$install_state
    * Helper function for automatically selecting an installation profile from a
    * list or from a selection passed in via $_POST.
    */
-  function _install_select_profile($profiles, $request) {
+  function install_select_profile($profiles) {
     if (sizeof($profiles) == 0) {
-      throw new Exception(install_no_profile_error());
+      throw new \Exception(install_no_profile_error());
     }
     // Don't need to choose profile if only one available.
     if (sizeof($profiles) == 1) {
@@ -65,7 +63,7 @@ class SelectProfile extends InstallController {
       return $profile->name;
     }
     else {
-      $profile_from_form = $request->get('profile');
+      $profile_from_form = $this->request->get('profile');
       if (!empty($profile_from_form)) {
         foreach ($profiles as $profile) {
           if ($profile_from_form == $profile->name) {

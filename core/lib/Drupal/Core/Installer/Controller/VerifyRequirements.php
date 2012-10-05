@@ -9,30 +9,26 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 /**
  * This is installer step 4.
  */
-class VerifyRequirements {
+class VerifyRequirements extends InstallController {
 
-  public function interactive(Request $request) {
-    $session = $request->getSession();
-    $session->start();
-
-    $install_state = $session->get('install_state');
+  public function interactive() {
     // Check the installation requirements for Drupal and this profile.
-    $requirements = $this->install_check_requirements($install_state);
+    $requirements = $this->install_check_requirements();
 
     // Verify existence of all required modules.
-    $requirements += $this->drupal_verify_profile($install_state);
+    $requirements += $this->drupal_verify_profile();
 
     // Check the severity of the requirements reported.
     $severity = drupal_requirements_severity($requirements);
-
     // If there are errors, always display them. If there are only warnings, skip
     // them if the user has provided a URL parameter acknowledging the warnings
     // and indicating a desire to continue anyway. See drupal_requirements_url().
-    if ($severity == REQUIREMENT_ERROR || ($severity == REQUIREMENT_WARNING && empty($install_state['parameters']['continue']))) {
-      if ($install_state['interactive']) {
+    if ($severity == REQUIREMENT_ERROR || ($severity == REQUIREMENT_WARNING && empty($this->install_state['parameters']['continue']))) {
+      if ($this->install_state['interactive']) {
         drupal_set_title(st('Requirements problem'));
         $status_report = theme('status_report', array('requirements' => $requirements));
         $status_report .= st('Check the messages and <a href="!url">try again</a>.', array('!url' => check_url(drupal_requirements_url($severity))));
+
         return new Response($status_report);
       }
       else {
@@ -51,16 +47,17 @@ class VerifyRequirements {
         }
       }
     }
+    return new RedirectResponse('database');
   }
 
-  function install_check_requirements($install_state) {
-    $profile = $install_state['parameters']['profile'];
+  function install_check_requirements() {
+    $profile = $this->install_state['parameters']['profile'];
 
     // Check the profile requirements.
     $requirements = $this->drupal_check_profile($profile);
 
     // If Drupal is not set up already, we need to create a settings file.
-    if (!$install_state['settings_verified']) {
+    if (!$this->install_state['settings_verified']) {
       $writable = FALSE;
       $conf_path = './' . conf_path(FALSE, TRUE);
       $settings_file = $conf_path . '/settings.php';
@@ -182,18 +179,18 @@ class VerifyRequirements {
    * @return
    *   Array of the install profile's requirements.
    */
-  function drupal_verify_profile($install_state) {
-    $profile = $install_state['parameters']['profile'];
+  function drupal_verify_profile() {
+    $profile = $this->install_state['parameters']['profile'];
 
     include_once DRUPAL_ROOT . '/core/includes/file.inc';
     include_once DRUPAL_ROOT . '/core/includes/common.inc';
 
-    $profile_file = DRUPAL_ROOT . "/profiles/$profile/$profile.profile";
+    $profile_file = DRUPAL_ROOT . "/core/profiles/$profile/$profile.profile";
 
     if (!isset($profile) || !file_exists($profile_file)) {
-      throw new Exception(install_no_profile_error());
+      throw new \Exception(install_no_profile_error());
     }
-    $info = $install_state['profile_info'];
+    $info = $this->install_state['profile_info'];
 
     // Get a list of modules that exist in Drupal's assorted subdirectories.
     $present_modules = array();
@@ -228,10 +225,10 @@ class VerifyRequirements {
   function drupal_check_profile($profile) {
     include_once DRUPAL_ROOT . '/core/includes/file.inc';
 
-    $profile_file = DRUPAL_ROOT . "/profiles/$profile/$profile.profile";
+    $profile_file = DRUPAL_ROOT . "/core/profiles/$profile/$profile.profile";
 
     if (!isset($profile) || !file_exists($profile_file)) {
-      throw new Exception(install_no_profile_error());
+      throw new \Exception(install_no_profile_error());
     }
 
     $info = install_profile_info($profile);

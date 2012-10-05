@@ -9,21 +9,17 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 /**
  * This is installer step 3.
  */
-class LoadProfile {
+class LoadProfile extends InstallController {
 
-  public function interactive(Request $request) {
-    $session = $request->getSession();
-    $session->start();
-    $install_state = $session->get('install_state');
-    $profile = $install_state['parameters']['profile'];
-    $langcode = $install_state['parameters']['langcode'];
+  public function interactive() {
+    $profile = $this->install_state['parameters']['profile'];
+    $langcode = $this->install_state['parameters']['langcode'];
 
-    $profile_file = DRUPAL_ROOT . '/profiles/' . $profile . '/' . $profile . '.profile';
+    $profile_file = DRUPAL_ROOT . '/core/profiles/' . $profile . '/' . $profile . '.profile';
     if (file_exists($profile_file)) {
       include_once $profile_file;
-      $install_state['profile_info'] = install_profile_info($profile, $langcode);
-
-      $session->set('install_state', $install_state);
+      $this->install_state['profile_info'] = install_profile_info($profile, $langcode);
+      $this->saveInstallState($this->install_state);
       return new RedirectResponse('requirements');
     }
     else {

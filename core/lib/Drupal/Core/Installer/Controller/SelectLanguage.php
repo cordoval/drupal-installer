@@ -11,17 +11,10 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
  */
 class SelectLanguage extends InstallController {
 
-  public function nonInteractive() {
-
-  }
-
   public function interactive() {
-    $install_state = $this->install_state;
-
     // Find all available translations.
-    require_once DRUPAL_ROOT . '/core/includes/file.inc';
     $files = install_find_translations();
-    $install_state['translations'] = $files;
+    $this->install_state['translations'] = $files;
 
     $langcode = $this->request->get('langcode');
     if (empty($langcode)) {
@@ -30,7 +23,7 @@ class SelectLanguage extends InstallController {
       // installer can be translated. Otherwise we assume the user knows what he
       // is doing.
       if (count($files) == 1) {
-        if ($install_state['interactive']) {
+        if ($this->install_state['interactive']) {
           $directory = variable_get('locale_translate_file_directory', conf_path() . '/files/translations');
 
           drupal_set_title(st('Choose language'));
@@ -57,7 +50,7 @@ class SelectLanguage extends InstallController {
         // One language, but not an interactive installation. Assume the user
         // knows what he is doing.
         $langcode = current($files);
-        $install_state['parameters']['langcode'] = $file->langcode;
+        $install_state['parameters']['langcode'] = $langcode->langcode;
         return;
       }
       else {
@@ -66,22 +59,21 @@ class SelectLanguage extends InstallController {
         // not a real form with submit handlers (the database isn't even set up
         // yet), rather just a convenience method for setting parameters in the
         // URL.
-        if ($install_state['interactive']) {
+        if ($this->install_state['interactive']) {
           drupal_set_title(st('Choose language'));
-          include_once DRUPAL_ROOT . '/core/includes/form.inc';
           $elements = drupal_get_form('install_select_language_form', $files);
           return new Response(drupal_render($elements));
         }
         else {
-          throw new Exception(st('Sorry, you must select a language to continue the installation.'));
+          throw new \Exception(st('Sorry, you must select a language to continue the installation.'));
         }
       }
     }
     else {
       foreach ($files as $file) {
         if ($langcode == $file->langcode) {
-          $install_state['parameters']['langcode'] = $file->langcode;
-          $this->saveInstallState($install_state);
+          $this->install_state['parameters']['langcode'] = $file->langcode;
+          $this->saveInstallState($this->install_state);
           return new RedirectResponse('profile');
         }
       }

@@ -12,6 +12,7 @@ use Drupal\Core\Installer\Controller\SelectLanguage;
 use Drupal\Core\Installer\Controller\SelectProfile;
 use Drupal\Core\Installer\Controller\LoadProfile;
 use Drupal\Core\Installer\Controller\VerifyRequirements;
+use Drupal\Core\Installer\Controller\DatabaseSettings;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -61,12 +62,9 @@ const INSTALL_TASK_RUN_IF_REACHED = 2;
 const INSTALL_TASK_RUN_IF_NOT_COMPLETED = 3;
 
 function install_drupal_2() {
-
   // So that the class loader works.
   require_once DRUPAL_ROOT . '/core/includes/bootstrap.inc';
   drupal_bootstrap(DRUPAL_BOOTSTRAP_CONFIGURATION);
-
-  install_drupal_2_init();
 
   $request = Request::createFromGlobals();
 
@@ -86,37 +84,41 @@ function install_drupal_2() {
   $session->set('install_state', $install_state);
 
   $routes = new RouteCollection();
-
   $context = new RequestContext();
   $matcher = new UrlMatcher($routes, $context);
   $generator = new UrlGenerator($routes, $context);
 
-  $language_controller = new SelectLanguage($generator, $request);
-  $profile_controller = new SelectProfile($generator, $request);
-  $load_profile_controller = new LoadProfile($generator);
-  $requirements_controller = new VerifyRequirements($generator);
-
-  $routes->add('language', new Route('/language', array(
-    '_controller' => array($language_controller, 'interactive'),
-  )));
-  $routes->add('profile', new Route('/profile', array(
-    '_controller' => array($profile_controller, 'interactive'),
-  )));
   $routes->add('home', new Route('/', array(
     '_controller' => function() use ($generator) {
       return new RedirectResponse($generator->generate('language'));
     },
   )));
 
-  $routes->add('load_profile', new Route('/load_profile', array(
-    '_controller' => array($load_profile_controller, 'interactive'),
-  )));
-  $routes->add('requirements', new Route('/requirements', array(
-    '_controller' => array($requirements_controller, 'interactive'),
+  $routes->add('language', new Route('/language', array(
+    '_controller' => array(new SelectLanguage($generator, $request), 'interactive'),
   )));
 
+  $routes->add('profile', new Route('/profile', array(
+    '_controller' => array(new SelectProfile($generator, $request), 'interactive'),
+  )));
+
+  $routes->add('load_profile', new Route('/load_profile', array(
+    '_controller' => array(new LoadProfile($generator, $request), 'interactive'),
+  )));
+
+  $routes->add('requirements', new Route('/requirements', array(
+    '_controller' => array(new VerifyRequirements($generator, $request), 'interactive'),
+  )));
+
+  $routes->add('database', new Route('/database', array(
+    '_controller' => array(new DatabaseSettings($generator, $request), 'interactive'),
+  )));
 
   $kernel = new InstallerKernel($matcher);
+  $kernel->initializeContainer();
+
+  install_drupal_2_init();
+
   $kernel->handle($request)->send();
 }
 
@@ -136,6 +138,7 @@ function install_drupal_2_init() {
   require_once DRUPAL_ROOT . '/core/includes/unicode.inc';
   require_once DRUPAL_ROOT . '/core/includes/ajax.inc';
   include_once DRUPAL_ROOT . '/core/includes/module.inc';
+  require_once DRUPAL_ROOT . '/core/includes/cache.inc';
   $module_list['system']['filename'] = 'core/modules/system/system.module';
   $module_list['entity']['filename'] = 'core/modules/entity/entity.module';
   $module_list['user']['filename']   = 'core/modules/user/user.module';
