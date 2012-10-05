@@ -64,6 +64,7 @@ function install_drupal_2() {
 
   // So that the class loader works.
   require_once DRUPAL_ROOT . '/core/includes/bootstrap.inc';
+
   drupal_bootstrap(DRUPAL_BOOTSTRAP_CONFIGURATION);
 
   install_drupal_2_init();
@@ -114,7 +115,6 @@ function install_drupal_2() {
   $routes->add('requirements', new Route('/requirements', array(
     '_controller' => array($requirements_controller, 'interactive'),
   )));
-
 
   $kernel = new InstallerKernel($matcher);
   $kernel->handle($request)->send();
