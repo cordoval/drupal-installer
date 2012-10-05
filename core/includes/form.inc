@@ -813,7 +813,6 @@ function drupal_retrieve_form($form_id, &$form_state) {
     $args[0] = $form;
   }
 
-  // If $callback was returned by a hook_forms() implementation, call it.
   // Otherwise, call the function named after the form id.
   $form = call_user_func_array($callback, $args);
   $form['#form_id'] = $form_id;

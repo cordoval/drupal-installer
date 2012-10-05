@@ -2463,7 +2463,6 @@ function drupal_container(Container $new_container = NULL, $rebuild = FALSE) {
   // We do not use drupal_static() here because we do not have a mechanism by
   // which to reinitialize the stored objects, so a drupal_static_reset() call
   // would leave Drupal in a nonfunctional state.
-    echo "inside drupal_container!";
   static $container = NULL;
   if ($rebuild) {
     $container = NULL;

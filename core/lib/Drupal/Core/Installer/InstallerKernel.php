@@ -11,6 +11,8 @@ use Symfony\Component\HttpKernel\EventListener\RouterListener;
 use Symfony\Component\HttpKernel\EventListener\ResponseListener;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Drupal\Core\CoreBundle;
+use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * Description of InstallerKernel
@@ -19,46 +21,53 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  */
 class InstallerKernel extends HttpKernel {
 
-    protected $container;
+  protected $container;
 
-    public function __construct(UrlMatcher $matcher) {
-        $resolver = new ControllerResolver();
+  public function __construct(UrlMatcher $matcher) {
+      $resolver = new ControllerResolver();
 
-        $dispatcher = new EventDispatcher();
-        $dispatcher->addSubscriber(new RouterListener($matcher));
-        $dispatcher->addSubscriber(new ResponseListener('UTF-8'));
+      $dispatcher = new EventDispatcher();
+      $dispatcher->addSubscriber(new RouterListener($matcher));
+      $dispatcher->addSubscriber(new ResponseListener('UTF-8'));
 
-        parent::__construct($dispatcher, $resolver);
-    }
+      parent::__construct($dispatcher, $resolver);
+  }
 
-    /**
-     * Initializes the service container.
-     */
-    protected function initializeContainer() {
+  /**
+   * Initializes the service container.
+   */
+  public function initializeContainer() {
+    $this->container = $this->buildContainer();
+    $this->container->set('kernel', $this);
+    drupal_container($this->container);
+  }
 
-        /** @ */
-        $this->container->set('kernel', $this);
+  /**
+   * Builds the service container.
+   *
+   * @return ContainerBuilder The compiled service container
+   */
+  protected function buildContainer() {
+    $container = new ContainerBuilder();
+    // Return a ContainerBuilder instance with the bare essentials needed for any
+    // full bootstrap regardless of whether there will be a DrupalKernel involved.
+    // This will get merged with the full Kernel-built Container on normal page
+    // requests.
+    // Return a ContainerBuilder instance with the bare essentials needed for any
+    // full bootstrap regardless of whether there will be a DrupalKernel involved.
+    // This will get merged with the full Kernel-built Container on normal page
+    // requests.
 
-        echo "drupal container installer 0\n";
-        $this->container = drupal_container(new ContainerBuilder());
+    $container->register('dispatcher', 'Symfony\Component\EventDispatcher\EventDispatcher');
 
-        drupal_container($this->container);
+    $container->register('config.storage', 'Drupal\Core\Config\InstallStorage');
+    $container->register('config.factory', 'Drupal\Core\Config\ConfigFactory')
+      ->addArgument(new Reference('config.storage'))
+      ->addArgument(new Reference('dispatcher'));
 
-        $installerContainer
-            ->register('twig.template.engine', 'Drupal\Core\Config\FileStorage')
-            ->addArgument(config_get_config_directory(CONFIG_ACTIVE_DIRECTORY));
+    $bundle = new CoreBundle();
+    $bundle->build($container);
 
-        echo "drupal container installer 1\n";
-    }
-
-    /**
-     * Gets a new ContainerBuilder instance used to build the service container.
-     *
-     * @return ContainerBuilder
-     */
-    protected function getContainerBuilder() {
-        return new ContainerBuilder(new ParameterBag($this->getKernelParameters()));
-    }
-
-
+    return $container;
+  }
 }

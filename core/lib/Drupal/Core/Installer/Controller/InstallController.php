@@ -8,19 +8,19 @@ use Symfony\Component\Routing\Generator\UrlGenerator;
 
 /**
  * This is the most basic installation Controller. It makes handling the
- * install_state more convenient.
+ * install state more convenient.
  */
 class InstallController {
-
   protected $generator;
   protected $request;
   protected $install_state;
 
   public function __construct(UrlGenerator $generator, Request $request) {
-    $this->generator = $generator;
-    $this->request = $request;
     $session = $request->getSession();
     $session->start();
+
+    $this->generator = $generator;
+    $this->request = $request;
     $this->install_state = $session->get('install_state');
   }
 
