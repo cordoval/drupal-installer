@@ -686,7 +686,7 @@ function install_goto($path) {
  *
  * @return
  *   The URL of the current script, with query parameters modified by the
- *   passed-in $query. The URL is not sanitized, so it still needs to be run
+ *   passed-in $query. The URL i' . check_url(drupal_current_script_us not sanitized, so it still needs to be run
  *   through check_url() if it will be used as an HTML attribute value.
  *
  * @see drupal_requirements_url()

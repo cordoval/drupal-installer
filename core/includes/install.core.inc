@@ -9,6 +9,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 use Drupal\Core\Installer\InstallerKernel;
 use Drupal\Core\Installer\Controller\SelectLanguage;
+use Drupal\Core\Installer\Controller\Translate;
 use Drupal\Core\Installer\Controller\SelectProfile;
 use Drupal\Core\Installer\Controller\LoadProfile;
 use Drupal\Core\Installer\Controller\VerifyRequirements;
@@ -96,6 +97,10 @@ function install_drupal_2() {
 
   $routes->add('language', new Route('/language', array(
     '_controller' => array(new SelectLanguage($generator, $request), 'interactive'),
+  )));
+
+  $routes->add('translate', new Route('/translate', array(
+    '_controller' => array(new Translate($generator, $request), 'interactive'),
   )));
 
   $routes->add('profile', new Route('/profile', array(
@@ -1318,11 +1323,11 @@ function _install_select_profile($profiles) {
  * @param array $install_state
  *   An array of information about the current installation state.
  */
-function install_select_profile_form($form, &$form_state, $install_state) {
+function install_select_profile_form($form, &$form_state, $files) {
   $profiles = array();
   $names = array();
 
-  foreach ($install_state['profiles'] as $profile) {
+  foreach ($files as $profile) {
     $details = install_profile_info($profile->name);
     // Don't show hidden profiles. This is used by to hide the testing profile,
     // which only exists to speed up test runs.
@@ -1534,7 +1539,7 @@ function install_select_language_form($form, &$form_state, $files) {
 
   if (count($files) == 1) {
     $form['help'] = array(
-      '#markup' => '<p><a href="' . check_url(drupal_current_script_url(array('translate' => 'true'))) . '">' . st('Learn how to install Drupal in other languages') . '</a></p>',
+      '#markup' => '<p><a href="translate">' . st('Learn how to install Drupal in other languages') . '</a></p>',
     );
   }
   $form['actions'] = array('#type' => 'actions');
