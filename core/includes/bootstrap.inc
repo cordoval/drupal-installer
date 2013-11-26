@@ -2471,6 +2471,7 @@ function drupal_container(Container $new_container = NULL, $rebuild = FALSE) {
     $container = $new_container;
   }
   if (!isset($container)) {
+
     // Return a ContainerBuilder instance with the bare essentials needed for any
     // full bootstrap regardless of whether there will be a DrupalKernel involved.
     // This will get merged with the full Kernel-built Container on normal page
@@ -2497,7 +2498,7 @@ function drupal_container(Container $new_container = NULL, $rebuild = FALSE) {
     $container->register('config.subscriber.globalconf', 'Drupal\Core\EventSubscriber\ConfigGlobalOverrideSubscriber');
     $container->register('dispatcher', 'Symfony\Component\EventDispatcher\EventDispatcher')
       ->addMethodCall('addSubscriber', array(new Reference('config.subscriber.globalconf')));
-    $container->register('config.factory', 'Drupal\Core\Config\ConfigFactory')
+    $container->register('config.factory', "Drupal\\Core\\Config\\ConfigFactory")
       ->addArgument(new Reference('config.storage'))
       ->addArgument(new Reference('dispatcher'));
 

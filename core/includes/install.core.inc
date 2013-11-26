@@ -64,9 +64,10 @@ function install_drupal_2() {
 
   // So that the class loader works.
   require_once DRUPAL_ROOT . '/core/includes/bootstrap.inc';
-  drupal_bootstrap(DRUPAL_BOOTSTRAP_CONFIGURATION);
 
-  install_drupal_2_init();
+  //install_drupal_2_init();
+
+  drupal_classloader();
 
   $request = Request::createFromGlobals();
 
@@ -164,7 +165,7 @@ function install_drupal_2_init() {
   drupal_maintenance_theme();
 
   // Check existing settings.php.
-  $install_state['settings_verified'] = install_verify_settings();
+  $install_state['settings_verified'] = install_verify_database_settings();
 
   if ($install_state['settings_verified']) {
     // Initialize the database system. Note that the connection
